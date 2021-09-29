@@ -1,27 +1,27 @@
-const connection = require('./db-config');
-const express = require('express');
-const app = express();
+const express = require("express")
+const cors = require("cors")
+const morgan = require("morgan")
+const connection = require("./config/db")
+const routes = require("./routes/index")
 
-const port = process.env.PORT || 3000;
+const app = express()
 
 connection.connect((err) => {
     if (err) {
-        console.error('error connecting: ' + err.stack);
+        console.error("error connecting: " + err.stack)
     } else {
-        console.log('connected as id ' + connection.threadId);
+        console.log("database connected")
     }
-});
+})
 
-app.get('/', (req, res) => {
-    connection.query('SELECT * FROM ', (err, result) => {
-        if (err) {
-            res.status(500).send('Error retrieving data from database');
-        } else {
-            res.json(result);
-        }
-    });
-});
+app.use(cors())
+app.use(morgan("tiny"))
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
-app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
-});
+app.use("/boats", routes.boats)
+
+app.get("/", (req, res) => {
+    res.status(200).send("je suis dans le /")
+})
+app.listen(4242, console.log(`http://localhost:4242`))
